@@ -1,0 +1,12 @@
+html, body {
+    min-height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+svg {
+    background-color: firebrick;
+}

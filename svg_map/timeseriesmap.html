@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>OSU Green Book SVG Demo</title>
+        <link rel="stylesheet" href="timeseriesmap.css" />
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <script src="https://d3js.org/topojson.v2.min.js"></script>
+        <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script> -->
+        <style>
+            /* Nothing here so far */
+        </style>
+    </head>
+    <body>
+        <main class="wrapper">
+            <div class="container">
+                <div class="sidebar">
+                    <div class="title">
+                        <h1 class="siderbar-title">The Green Book</h1>
+                        <p class="sidebar-text">Body Text</p>
+                    </div>
+                    <div class="sliderContainer">
+                        <div id="slider"></div>
+                        <div class="year start-year">1938</div>
+                        <div class="year end-year">1963</div>
+                        <div class="zoom-button"></div>
+                    </div>
+                    <div class="content"></div>
+                </div>
+                <div class="map-container">
+                    <div id="map-tooltip"></div>
+                    <div class="map-key"></div>
+                    <svg width="100%" height="100%" viewbox="0,0,960,605"  id="map"></svg>
+                </div>
+            </div>
+        </main>
+        <script src="timeseriesmap.js" type="text/javascript"></script>
+    </body>
+</html>
