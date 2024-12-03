@@ -7,6 +7,20 @@ body {
     flex-direction: column;
 }
 
-svg {
-    background-color: firebrick;
-}
+/* svg {
+    background-color: lightblue;
+} */
+
+#slider {
+    float:left;
+    width: 935px;
+    height: 45px;
+    background-color: rgb(148, 73, 29);
+  }
+
+#sliderContainer {
+    float: left;
+    margin-top: 30px;
+    height: 65px;
+    width: 985px;
+  }
