@@ -26,7 +26,7 @@ const estabID = new Array(
 
 );
 
-const colors = new Array("#e0f7ff","#b6e2ff","#87c4ff","#5d9eff","#007bff");
+const colors = new Array("#faffff","#60d0fa","#00a8fd","#0081e0","#007bff");
 
 function getColor(d) {
     return d > 207
@@ -43,8 +43,8 @@ function getColor(d) {
 var sliderWitdth = 950;
 var sliderHeight = 380;
 
-let gbCounts = "https://raw.githubusercontent.com/brycetreats-rsh/osu_greenbook_filehost/main/county_gb_counts_just1938.csv"
-let countyGeoFile = "https://cdn.freecodecamp.org/testable-projects-fcc/data/choropleth_map/counties.json"
+let gbCounts = "https://raw.githubusercontent.com/brycetreats-rsh/osu_greenbook_filehost/main/county_gb_counts_oneyear.json"
+let countyGeoFile = "https://raw.githubusercontent.com/brycetreats-rsh/osu_greenbook_filehost/main/usa_counties_full_topo.json"
 
 let gbCountsData
 let countyGeoData
@@ -73,19 +73,20 @@ d3.json(gbCounts).then(
                         margin = { top: 20, right: 20, bottom: 20, left: 20 };
 
                         // color scale
-                        var yearDomain = [0, years.length - 1];
+                        var yearDomain = [0, 250];
 
-                        var colorScale = d3.scaleThreshold()
-                        .domain(yearDomain)
-                        .range(colors)
+                        // var colorScale = d3.scaleThreshold()
+                        // .domain(yearDomain)
+                        // .range(colors)
 
                         // tooltip
                         var tooltip = d3
-                        .select("#map-tooltip")
+                        .select("body") //check select from "body" to "#map-tooltip" to style a non-popup tooltip
                         .append("div")
-                        // .attr("class", "tooltip")
-                        // .attr("id", "tooltip") // what this would do is create an ID, but I did that in the HTML
-                        .style("opacity", 0);
+                        .attr("id", "map-tooltip")
+                        .style("visibility", "hidden")
+                        .style("opacity", 0)
+                        
 
                         //  map
                         const svg = d3
@@ -120,10 +121,60 @@ d3.json(gbCounts).then(
                                     } 
                                 })
                                 
-                                return colorScale(county.yearninteenthirtyeight);
+                                return getColor(county.Y1938);
                             })
                             //add data values
                             .attr("data-fips", (d) => d.id)
+                            .attr("data-gbShops", (d) => {
+                                //get ID of current data element
+                                let currentID = d.id;
+                                // console.log(i, currentID)
+                                //find education that matches id
+                                let county = gbCountsData.find((item) => {
+                                    if (item.fips === currentID) {
+                                        // console.log(item.state)
+                                        return item;
+                                    } 
+                                })
+                                let gbShopCount = county.Y1938
+                                return gbShopCount
+                            })
+
+                            //CREATE TOOLTIP
+                            .on("mouseover", (event, d) => {
+                                tooltip
+                                    .transition()
+                                    .style("visibility", "visible")
+                                    .style("opacity", 1)
+                                
+                            })
+
+                            .on("mousemove", (event, d) => {
+                                //get ID of current data element
+                                let currentID = d.id;
+                                let county = gbCountsData.find((item) => {
+                                    if (item.fips === currentID) {
+                                        // console.log(item.state)
+                                        return item;
+                                    } 
+                                })
+
+                                tooltip
+                                    .html("Location: " + county.area_name + ", " + county.state + "<br>" +
+                                        'Number of Shops: ' + county.Y1938)
+                                    .style("left", event.pageX+10 + "px")
+                                    .style("top", event.pageY+10 + "px")
+                            })
+
+                            .on("mouseleave", (event, d) => {
+                                tooltip
+                                    .transition()
+                                    .style("visibility", "hidden")
+                            })
+
+                            // CREATE A LEGEND
+
+                            // CREATE TIMESLIDER
 
                             // .attr("data-education",(d, i) => {
                             //     let currentID = d.id;

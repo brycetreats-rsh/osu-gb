@@ -1,3 +1,4 @@
+import { readFileSync } from 'fs';
 // create year list and color list
 const years = new Array(
     "1938",
@@ -24,23 +25,14 @@ const years = new Array(
 
 const colors = new Array("#e0f7ff","#b6e2ff","#87c4ff","#5d9eff","#007bff");
 
-function getColor(d) {
-    return d > 207
-      ? colors[4]
-      : d > 30
-      ? colors[3]
-      : d > 20
-      ? colors[2]
-      : d > 10
-      ? colors[1]
-      : colors[0];
-  }
-
 var sliderWitdth = 950;
 var sliderHeight = 380;
 
 // -- GET FILES -- //
-let gbCounts = "https://brycetreats-rsh.github.io/osu_greenbook_filehost/county_gb_counts_oneyear.json"
+const newJsonData = readFileSync('/data/county_gb_counts_oneyear.json');
+const jsonData = JSON.parse(newJsonData);
+
+let gbCounts = jsonData
 let countyGeoFile = "https://cdn.freecodecamp.org/testable-projects-fcc/data/choropleth_map/counties.json"
 
 let gbCountsData
@@ -54,9 +46,10 @@ let drawMap = () => {
     // // color scale
     // var colorDomain = [0, 218];
 
-    // var colorScale = d3.scaleThreshold()
-    // .domain(colorDomain)
-    // .range(colors)
+    var colorScale = d3
+        .scaleThreshold()
+        .domain([0, 10, 30, 100, 220])
+        .range(colors);
 
 
     map.selectAll('path')
@@ -78,21 +71,21 @@ let drawMap = () => {
                 } 
             })
             
-            let count = county.yearninteenthirtyeight
-            console.log(county.yearninteenthirtyeight)
-            if (count == 0) {
-                return colors[0]
-            } else if (count <= 10) {
-                return colors[1]
-            } else if (count <= 30) {
-                return colors[2]
-            } else if (count <= 100) {
-                return colors[3]
-            } else if (count <= 250) {
-                return colors[4]
-            }
+            // let count = county.batchlorsOrHigher
+            // console.log(county.yearninteenthirtyeight)
+            // if (count == 0) {
+            //     return colors[0]
+            // } else if (count <= 10) {
+            //     return colors[1]
+            // } else if (count <= 30) {
+            //     return colors[2]
+            // } else if (count <= 100) {
+            //     return colors[3]
+            // } else if (count <= 250) {
+            //     return colors[4]
+            // }
             // let count = county['1938']
-            // return colorScale(county.yearninteenthirtyeight);
+            return colorScale(county.yearninteenthirtyeight);
         })
 }
 

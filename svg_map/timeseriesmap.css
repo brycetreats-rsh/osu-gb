@@ -16,6 +16,20 @@ svg {
     height: 600px;
 }
 
+#map-tooltip {
+    position: absolute;
+    display: flex;
+    font-family: "verdana";
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background-color: white;
+    font-size: 8pt;
+    color: black;
+    padding: 10px;
+    border: 2px solid black;
+}
+
 /* #slider {
     float:left;
     width: 935px;
