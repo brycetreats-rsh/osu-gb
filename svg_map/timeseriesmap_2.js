@@ -40,8 +40,8 @@ function getColor(d) {
       : colors[0];
   }
 
-var sliderWitdth = 950;
-var sliderHeight = 380;
+var sliderWidth = 950;
+var sliderHeight = 40;
 
 let gbCounts = "https://raw.githubusercontent.com/brycetreats-rsh/osu_greenbook_filehost/main/county_gb_counts_oneyear.json"
 let countyGeoFile = "https://raw.githubusercontent.com/brycetreats-rsh/osu_greenbook_filehost/main/usa_counties_full_topo.json"
@@ -67,19 +67,46 @@ d3.json(gbCounts).then(
                     } else {
                         // if no error, load data
                         countyGeoData = data
-                        console.log(countyGeoData)
+                        console.log(countyGeoData);
 
                         // -- create map svg -- //
                         margin = { top: 20, right: 20, bottom: 20, left: 20 };
 
-                        // color scale
-                        var yearDomain = [0, 250];
+                        // -- TIME SLIDER -- //
+                        const timeSlider = d3
+                            .select("#slider")
+                            .attr("class", "timeslider")
+                            .append("svg")
+                            .attr("width", sliderWidth)
+                            .attr("height", sliderHeight)
+
+                        var yearDomain = [0, years.length - 1];
+
+                        // var timeSliderScale = d3.scaleThreshold()
+                        //     .domain(yearDomain)
+                        //     .range(0, sliderWidth)
+                        
+                        // timeSlider
+
+                        //draw circle
+                        timeSlider
+                            .append('circle')
+                            .attr('cx', 475)
+                            .attr('cy', 20)
+                            .attr('r', 7)
+                            .style('fill', 'cyan');
+
+                        const dragBehavior = drag().on("drag", function() {
+                            d3.select(this)
+                                .attr("x", d3.event.x)
+                                .attr("y", d3.event.y);
+                        });
 
                         // var colorScale = d3.scaleThreshold()
                         // .domain(yearDomain)
                         // .range(colors)
 
-                        // tooltip
+                        // -- TOOLTIP -- //
                         var tooltip = d3
                         .select("body") //check select from "body" to "#map-tooltip" to style a non-popup tooltip
                         .append("div")
@@ -88,19 +115,19 @@ d3.json(gbCounts).then(
                         .style("opacity", 0)
                         
 
-                        //  map
-                        const svg = d3
+                        // -- MAP -- //
+                        const map = d3
                             .select("#map")
                             .append("svg")
 
                             //convert topojson to geojson woth d3.topo.json.features
                         var geojson = topojson.feature(countyGeoData, countyGeoData.objects.counties);
-                        console.log(geojson)
+                        console.log(geojson);
                         
                         // create a path generator
                         var path = d3.geoPath();
 
-                        svg
+                        map
                             .selectAll("path")
                             .data(geojson.features)
                             .enter()
@@ -160,8 +187,9 @@ d3.json(gbCounts).then(
                                 })
 
                                 tooltip
-                                    .html("Location: " + county.area_name + ", " + county.state + "<br>" +
-                                        'Number of Shops: ' + county.Y1938)
+                                    .html("<b>Location: </b>" + county.area_name + ", " + county.state + 
+                                        "<br>" +
+                                        '<b>Number of Shops: </b>' + county.Y1938)
                                     .style("left", event.pageX+10 + "px")
                                     .style("top", event.pageY+10 + "px")
                             })

@@ -16,28 +16,34 @@ svg {
     height: 600px;
 }
 
+r {
+    font-weight: bold;
+    font-size: 1.05em;
+  }
+
 #map-tooltip {
     position: absolute;
-    display: flex;
+    display:block;
     font-family: "verdana";
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
+    text-align: left;
+    align-items: left;
+    justify-content: left;
+    flex-direction:r column;
     background-color: white;
     font-size: 8pt;
     color: black;
-    padding: 10px;
+    padding: 8px;
     border: 2px solid black;
 }
 
-/* #slider {
+#slider {
     float:left;
     width: 935px;
     height: 45px;
     background-color: rgb(148, 73, 29);
   }
 
-#sliderContainer {
+/* #sliderContainer {
     float: left;
     margin-top: 30px;
     height: 65px;

@@ -25,41 +25,68 @@ const years = new Array(
 
 const colors = new Array("#e0f7ff","#b6e2ff","#87c4ff","#5d9eff","#007bff");
 
-var sliderWitdth = 950;
+var sliderWidth = 950;
 var sliderHeight = 380;
 
 // -- GET FILES -- //
-const newJsonData = readFileSync('/data/county_gb_counts_oneyear.json');
-const jsonData = JSON.parse(newJsonData);
-
-let gbCounts = jsonData
-let countyGeoFile = "https://cdn.freecodecamp.org/testable-projects-fcc/data/choropleth_map/counties.json"
+let gbCounts = "https://raw.githubusercontent.com/brycetreats-rsh/osu_greenbook_filehost/main/county_gb_counts_oneyear.json"
+let countyGeoFile = "https://raw.githubusercontent.com/brycetreats-rsh/osu_greenbook_filehost/main/usa_counties_full_topo.json"
 
 let gbCountsData
 let countyGeoData
 
 // -- LOAD MAP -- //
-let map = d3.select('#map')
+// let map = d3.select('#map')
 
 let drawMap = () => {
-    // var yearDomain = [0, years.length - 1];
-    // // color scale
-    // var colorDomain = [0, 218];
+// -- create map svg -- //
+    margin = { top: 20, right: 20, bottom: 20, left: 20 };
 
-    var colorScale = d3
-        .scaleThreshold()
-        .domain([0, 10, 30, 100, 220])
-        .range(colors);
+    // TIME SLIDER
+    var timeSlider = d3
+        .select("#slider")
+        .attr("class", "timeslider")
+        .append("svg")
+        .attr("width", sliderWidth)
+        .attr("height", sliderHeight)
+
+    var yearDomain = [0, years.length - 1];
+
+    // var colorScale = d3.scaleThreshold()
+    // .domain(yearDomain)
+    // .range(colors)
+
+    // tooltip
+    var tooltip = d3
+    .select("body") //check select from "body" to "#map-tooltip" to style a non-popup tooltip
+    .append("div")
+    .attr("id", "map-tooltip")
+    .style("visibility", "hidden")
+    .style("opacity", 0)
 
 
-    map.selectAll('path')
-        .data(countyGeoData.features)
+    //  MAP
+    const svg = d3
+        .select("#map")
+        .append("svg")
+
+        //convert topojson to geojson woth d3.topo.json.features
+    var geojson = topojson.feature(countyGeoData, countyGeoData.objects.counties);
+    console.log(geojson)
+
+    // create a path generator
+    var path = d3.geoPath();
+
+    svg
+        .selectAll("path")
+        .data(geojson.features)
         .enter()
-        .append('path')
-        .attr('d', d3.geoPath())
+        .append("path")
+        .attr("d", path)
         .attr("stroke", "#333")
-        .attr('class', 'county')
-        .attr("fill", (d, i) => { //d is a county data item
+        .attr("class", "county")
+        //fill color based on education scale
+        .attr("fill", (d, i) => {
             //get ID of current data element
             let currentID = d.id;
             // console.log(i, currentID)
@@ -71,21 +98,56 @@ let drawMap = () => {
                 } 
             })
             
-            // let count = county.batchlorsOrHigher
-            // console.log(county.yearninteenthirtyeight)
-            // if (count == 0) {
-            //     return colors[0]
-            // } else if (count <= 10) {
-            //     return colors[1]
-            // } else if (count <= 30) {
-            //     return colors[2]
-            // } else if (count <= 100) {
-            //     return colors[3]
-            // } else if (count <= 250) {
-            //     return colors[4]
-            // }
-            // let count = county['1938']
-            return colorScale(county.yearninteenthirtyeight);
+            return getColor(county.Y1938);
+        })
+        //add data values
+        .attr("data-fips", (d) => d.id)
+        .attr("data-gbShops", (d) => {
+            //get ID of current data element
+            let currentID = d.id;
+            // console.log(i, currentID)
+            //find education that matches id
+            let county = gbCountsData.find((item) => {
+                if (item.fips === currentID) {
+                    // console.log(item.state)
+                    return item;
+                } 
+            })
+            let gbShopCount = county.Y1938
+            return gbShopCount
+        })
+
+        //CREATE TOOLTIP
+        .on("mouseover", (event, d) => {
+            tooltip
+                .transition()
+                .style("visibility", "visible")
+                .style("opacity", 1)
+            
+        })
+
+        .on("mousemove", (event, d) => {
+            //get ID of current data element
+            let currentID = d.id;
+            let county = gbCountsData.find((item) => {
+                if (item.fips === currentID) {
+                    // console.log(item.state)
+                    return item;
+                } 
+            })
+
+            tooltip
+                .html("<b>Location: </b>" + county.area_name + ", " + county.state + 
+                    "<br>" +
+                    '<b>Number of Shops: </b>' + county.Y1938)
+                .style("left", event.pageX+10 + "px")
+                .style("top", event.pageY+10 + "px")
+        })
+
+        .on("mouseleave", (event, d) => {
+            tooltip
+                .transition()
+                .style("visibility", "hidden")
         })
 }
 
@@ -97,7 +159,7 @@ d3.json(gbCounts).then(
         } else {
             // if no error, load data
             gbCountsData = data;
-            console.log(gbCountsData)
+            console.log(gbCountsData);
 
             // load map after data is loaded
             d3.json(countyGeoFile).then(
@@ -106,65 +168,11 @@ d3.json(gbCounts).then(
                         console.log(error);
                     } else {
                         // if no error, load data
-                        countyGeoData = topojson.feature(data, data.objects.counties);
+                        countyGeoData = data
+                        console.log(countyGeoData);
                         drawMap()
 
-                        // -- slider -- //
-                        // var svg = d3 // come back to this
-                        // .select("#slider")
-                        // .append("svg")
-                        // .attr("width", sliderWitdth)
-                        // .attr("height", sliderHeight);
 
-                        // var yearDomain = [0, years.length - 1];
-
-                        // var scale = d3.scaleLinear()
-                        // .domain(yearDomain)
-                        // .range(0, 930)
-
-                        // var topAxis = d3.axisTop(scale)
-                        // .tickFormat(function(d) {
-                        //     return d;
-                        // })
-                        // .tickSize(0);
-
-                        // // var sliderSvg = d3.create("svg") // I believe this creates the time slider svg element, double check
-                        // // .call(topAxis);
-                        
-                        // svg
-                        // .append("g")
-                        // .call(topAxis)
-                        // .attr("transform", "translate(" + 15 + ",0)");
-
-                        // var drag = d3.drag()
-                        // .origin(function() { // does not work
-                        //     return {
-                        //         x: d3.select(this).attr("x"), // no idea what this does yet
-                        //         y: d3.select(this).attr("y")
-                        //     };
-                        // })
-                        // .on("start")
-                        // .on("move")
-                        // .on("end");
-
-                        // svg
-                        // .append("g")
-                        // .append("rect")
-                        // .attr("class", "slideraxis")
-                        // .attr("width", sliderWitdth)
-                        // .attr("height", 7)
-                        // .attr("x", 0)
-                        // .attr("y", 16);
-
-                        // var cursor = svg
-                        // .append("g")
-                        // .attr("class", "move")
-                        // .append("svg")
-                        // .attr("x", width)
-                        // .attr("y", 7)
-                        // .attr("width", 30)
-                        // .attr("height", 60);
-                        // cursor.call(drag)
                     }
                 }
             )
