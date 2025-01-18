@@ -43,7 +43,7 @@ function getColor(d) {
 var sliderWidth = 950;
 var sliderHeight = 40;
 
-let gbCounts = "https://raw.githubusercontent.com/brycetreats-rsh/osu_greenbook_filehost/main/county_gb_counts_oneyear.json"
+let gbCounts = "https://raw.githubusercontent.com/brycetreats-rsh/osu_greenbook_filehost/main/county_gb_counts_allyears.json"
 let countyGeoFile = "https://raw.githubusercontent.com/brycetreats-rsh/osu_greenbook_filehost/main/usa_counties_full_topo.json"
 
 let gbCountsData
@@ -73,34 +73,55 @@ d3.json(gbCounts).then(
                         margin = { top: 20, right: 20, bottom: 20, left: 20 };
 
                         // -- TIME SLIDER -- //
-                        const timeSlider = d3
-                            .select("#slider")
-                            .attr("class", "timeslider")
-                            .append("svg")
-                            .attr("width", sliderWidth)
-                            .attr("height", sliderHeight)
+                        const timeSlider = d3.select('#slider').selectAll('svg');
 
                         var yearDomain = [0, years.length - 1];
 
                         // var timeSliderScale = d3.scaleThreshold()
                         //     .domain(yearDomain)
                         //     .range(0, sliderWidth)
-                        
-                        // timeSlider
 
-                        //draw circle
-                        timeSlider
-                            .append('circle')
-                            .attr('cx', 475)
-                            .attr('cy', 20)
-                            .attr('r', 7)
-                            .style('fill', 'cyan');
+                        const lineX1 = 50, lineX2 = 850, lineY = 21;
 
-                        const dragBehavior = drag().on("drag", function() {
-                            d3.select(this)
-                                .attr("x", d3.event.x)
-                                .attr("y", d3.event.y);
+                        // append line to svg
+                        timeSlider.append("line")
+                                    .attr("x1", lineX1)
+                                    .attr("x2", lineX2)
+                                    .attr("y1", lineY)
+                                    .attr("y2", lineY)
+                                    .attr("stroke", "black")
+                                    .attr("stroke-width", 2);
+
+                        // Initial square position
+                        const squareSize = 20;
+                        let squareX = lineX1;
+
+                        // append square to svg
+                        const square = timeSlider.append("rect")
+                                    .attr("x", squareX - squareSize / 2) // Center the square on the line
+                                    .attr("y", lineY - squareSize / 2)  // Center vertically around the line
+                                    .attr("width", squareSize)
+                                    .attr("height", squareSize)
+                                    .attr("fill", "cyan")
+                                    .attr("class", "draggable");
+
+                        const drag = d3.drag()
+                        .on("drag", (event) => {
+                            // Constrain x to the line's range
+                            let newX = Math.max(lineX1, Math.min(lineX2, event.x));
+
+                            // Update square position
+                            square.attr("x", newX - squareSize / 2); //I need to update square position based on years list
                         });
+
+                        // Apply drag behavior to the square
+                        square.call(drag);
+
+                        // update map features
+                        function updateMap(mapIndex) {
+                            
+                        }
+                        
 
                         // var colorScale = d3.scaleThreshold()
                         // .domain(yearDomain)
@@ -163,7 +184,7 @@ d3.json(gbCounts).then(
                                         return item;
                                     } 
                                 })
-                                let gbShopCount = county.Y1938
+                                let gbShopCount = county.Y1960
                                 return gbShopCount
                             })
 

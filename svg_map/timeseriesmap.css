@@ -7,9 +7,9 @@ html, body {
     text-align: center; 
 }
 
-svg {
+/* svg {
     background-color: lightblue;
-}
+} */
 
 #map {
     width: 1000px;
@@ -37,9 +37,10 @@ r {
 }
 
 #slider {
-    float:left;
-    width: 935px;
-    height: 45px;
+    display: block;
+    margin: auto;
+    width: 900px;
+    height: 40px;
     background-color: rgb(148, 73, 29);
   }
 
